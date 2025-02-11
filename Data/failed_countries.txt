@@ -1,0 +1,34 @@
+CaboVerde : CapeVerde
+BahamasThe : TheBahamas
+BruneiDarussalam : Brunei
+Coted'Ivoire : CotedIvoire
+CongoDemRep : DemocraticRepublicoftheCongo
+CongoRep : RepublicOfTheCongo
+Czechia : CzechRepublic
+EgyptArabRep : Egypt
+MicronesiaFedSts : Micronesia
+GambiaThe : TheGambia
+HongKongSARChina : HongKong
+IranIslamicRep : Iran
+KyrgyzRepublic : Kyrgyzstan
+StKittsandNevis : SaintKittsandNevis
+KoreaRep : KoreaSouth
+LaoPDR : Laos
+StLucia : SaintLucia
+MacaoSARChina : Macau
+NorthMacedonia : Macedonia
+Myanmar : Burma
+KoreaDemPeople'sRep : KoreaNorth
+RussianFederation : Russia
+SlovakRepublic : Slovakia
+SyrianArabRepublic : Syria
+Turkiye : Turkey
+UnitedStates : UnitedStatesofAmerica
+StVincentandtheGrenadines : SaintVincentandtheGrenadines
+VenezuelaRB : Venezuela
+VirginIslands(US) : VirginIslands
+YemenRep : Yemen
+BahamasThe
+BahamasThe
+StMartin(Frenchpart)
+SintMaarten(Dutchpart)
