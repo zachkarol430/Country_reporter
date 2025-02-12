@@ -44,10 +44,8 @@ def map_country_name(country):
             try:
                 old_name, new_name = mapping.split(' : ')
                 if old_name == country:
-                    print(f"Mapping {country} to {new_name}")
                     return new_name
             except ValueError:
-                print(f"Invalid mapping format: {mapping}")
                 continue
                 
         return country
@@ -59,63 +57,70 @@ def map_country_name(country):
         print(f"Error reading mappings file: {str(e)}")
         return country
 
-def get_country_data(country):
-    try:
-        # Standardize country name for URL
-        country_url = standardize_country_name(country)
-        url = f"http://countryreports.org/country/{country_url}.htm"
-        response = requests.get(url)
-        soup = BeautifulSoup(response.text, 'html.parser')
-        
-        # Find the facts section
-        facts_section = soup.find('div', class_='crpBodyOut')
-        
-        # Extract data from the table
-        table = facts_section.find('table', class_='crpSectionTable')
-        rows = table.find_all('tr')
-        
-        country_data = {
-            "country_name": country
-        }
-        
-        # Map field names to table row headers
-        field_map = {
-            "Capital": "capital",
-            "Government Type": "government_type",
-            "Currency": "currency", 
-            "Language": "language",
-            "Total Area": "total_area",
-            "Location": "location",
-            "GDP - real growth rate": "gdp_growth",
-            "GDP - per capita (PPP)": "gdp_per_capita"
-        }
-        
-        # Extract data from each row
-        for row in rows:
-            cells = row.find_all('td')
-            if len(cells) >= 2:
-                header = cells[0].text.strip()
-                value = cells[1].text.strip()
-                
-                if header in field_map:
-                    # Remove any note lines that appear after newlines
-                    value = value.split('\n')[0].strip()
-                    country_data[field_map[header]] = value
+def get_country_data(country, max_retries=3):
+    """Get country data with retries"""
+    for attempt in range(max_retries):
+        try:
+            # Standardize country name for URL
+            country_url = standardize_country_name(country)
+            url = f"http://countryreports.org/country/{country_url}.htm"
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+            
+            # Find the facts section
+            facts_section = soup.find('div', class_='crpBodyOut')
+            
+            # Extract data from the table
+            table = facts_section.find('table', class_='crpSectionTable')
+            rows = table.find_all('tr')
+            
+            country_data = {
+                "country_name": country
+            }
+            
+            # Map field names to table row headers
+            field_map = {
+                "Capital": "capital",
+                "Government Type": "government_type",
+                "Currency": "currency", 
+                "Language": "language",
+                "Total Area": "total_area",
+                "Location": "location",
+                "GDP - real growth rate": "gdp_growth",
+                "GDP - per capita (PPP)": "gdp_per_capita"
+            }
+            
+            # Extract data from each row
+            for row in rows:
+                cells = row.find_all('td')
+                if len(cells) >= 2:
+                    header = cells[0].text.strip()
+                    value = cells[1].text.strip()
                     
-        return country_data
+                    if header in field_map:
+                        value = value.split('\n')[0].strip()
+                        country_data[field_map[header]] = value
+                        
+            return country_data
+                
+        except Exception as e:
+            import traceback
+            print(f"Attempt {attempt + 1} failed for {country}:")
+            print(traceback.format_exc())
             
-    except Exception as e:
-        import traceback
-        print(f"Error fetching data for {country}:")
-        print(traceback.format_exc())
-        
-        # Append failed country to errors file
-        error_file = 'Data/failed_countries.txt'
-        os.makedirs('Data', exist_ok=True)
-        with open(error_file, 'a') as f:
-            f.write(f"{country}\n")
+            if attempt == max_retries - 1:  # Last attempt failed
+                # Append failed country to errors file
+                error_file = 'Data/failed_countries.txt'
+                os.makedirs('Data', exist_ok=True)
+                with open(error_file, 'a') as f:
+                    f.write(f"{country}\n")
+                    
+                return None
+                
+            # Wait longer between retries
+            time.sleep(2 * (attempt + 1))
             
-        return None
+    return None
 
 def main():
     # Get list of countries from your existing GDP or Population CSV
@@ -138,22 +143,25 @@ def main():
             country_name_map[var] = std_name
     
     # Standardize country names in the DataFrame
-    df['Country Name'] = df['Country Name'].apply(standardize_country_name)
+    df['New Country Name'] = df['Country Name'].apply(standardize_country_name)
     
     # Map country names using the mapping file
-    df['Country Name'] = df['Country Name'].apply(map_country_name)
+    df['New Country Name'] = df['New Country Name'].apply(map_country_name)
     
-    countries = df['Country Name'].tolist()
+
+    
+    new_country_name, old_country_name = df['New Country Name'].tolist(), df['Country Name'].tolist()
     
     # List to store country data
     all_country_data = []
     
     # Iterate through countries
-    for country in countries:
-        print(f"Fetching data for {country}...")
-        country_data = get_country_data(country)
+    for new_country_name,old_country_name in zip(new_country_name,old_country_name):
+        print(f"Fetching data for {new_country_name, old_country_name}...")
+        country_data = get_country_data(new_country_name)
         
         if country_data:
+            country_data['original_country_name'] = old_country_name
             all_country_data.append(country_data)
         
         # Add delay to be respectful to the server
