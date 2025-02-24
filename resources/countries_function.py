@@ -1,4 +1,4 @@
-from Chat_bot import generate_fun_facts
+from Chat_bot import generate_fun_facts,summarize_news
 from weather_helper import get_weather  # Import the weather function
 from extract_flag import get_flag_url  # Import the flag URL function
 import pandas as pd
@@ -9,6 +9,7 @@ import random
 from fastapi.responses import FileResponse
 from Capital_info_getters import get_capital_info
 from fastapi import APIRouter
+from News_collector import fetch_google_news_rss
 
 
 # Setup
@@ -73,10 +74,14 @@ async def get_random_country() -> Dict:
     
     # Get capital info
     capital_info = get_capital_info(country_data['capital'], country_data['latitude'], country_data['longitude'])
+
+    # Fetch news data
+    news_data = fetch_google_news_rss(country_data['country_name'])
+    news_summary = summarize_news(news_data,country_data['country_name'])
     
     return {
         "country_name": country_data['country_name'],
-        "flag_url": flag_url,  # Include the flag URL in the response
+        "flag_url": flag_url,
         "capital": capital_info['capital'],
         "image_url": capital_info['image_url'],
         "maps_link": capital_info['maps_link'],
@@ -88,7 +93,8 @@ async def get_random_country() -> Dict:
             "description": weather_data['weather'][0]['description'] if weather_data else None,
             "humidity": weather_data['main']['humidity'] if weather_data else None,
             "wind_speed": weather_data['wind']['speed'] if weather_data else None,
-        } if weather_data else None
+        } if weather_data else None, # Include news data in the response
+        "news_summary": news_summary    
     }
 
 
