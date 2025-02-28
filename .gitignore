@@ -170,3 +170,6 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 node_modules
+
+docker-compose.yml
+.dockerignore

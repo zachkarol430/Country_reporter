@@ -15,8 +15,3 @@ def get_flag_url(country_code: str):
         print(f"Error fetching data for country code {country_code}: {response.status_code}")
         return None
 
-# Example usage
-country_code = 'DE'  # Germany's country code
-flag_url = get_flag_url(country_code)
-if flag_url:
-    print(f"Flag URL for {country_code}: {flag_url}") 
