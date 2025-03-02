@@ -1,10 +1,9 @@
 import requests
 import json
 import os
-
 from dotenv import load_dotenv
 
-#load access and secret keys
+# Load access and secret keys
 load_dotenv()   
 
 open_router_api_key = os.getenv('MY_ROUTER_KEY')
@@ -25,7 +24,7 @@ def generate_fun_facts(country_name: str) -> str:
                 "Content-Type": "application/json",
             },
             data=json.dumps({
-                "model": "moonshotai/moonlight-16b-a3b-instruct:free",
+                "model": "nousresearch/deephermes-3-llama-3-8b-preview:free",
                 "messages": [
                     {
                         "role": "user",
@@ -35,6 +34,7 @@ def generate_fun_facts(country_name: str) -> str:
             })
         )
         response_data = response.json()
+        print(response_data)
         return response_data.get('choices', [{}])[0].get('message', {}).get('content', "No response content.")
     except Exception as e:
         return "Unable to generate fun facts at this time."
@@ -68,4 +68,3 @@ def summarize_news(news_list: list, country_name: str) -> str:
         return response_data.get('choices', [{}])[0].get('message', {}).get('content', "No response content.")
     except Exception as e:
         return "Unable to summarize the news at this time."
-    
