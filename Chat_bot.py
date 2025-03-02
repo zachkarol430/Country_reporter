@@ -2,7 +2,12 @@ import requests
 import json
 import os
 
-open_router_api_key = os.getenv('my_router_key')
+from dotenv import load_dotenv
+
+#load access and secret keys
+load_dotenv()   
+
+open_router_api_key = os.getenv('MY_ROUTER_KEY')
 
 def generate_fun_facts(country_name: str) -> str:
     """Generate fun facts about a country using OpenRouter API"""
@@ -39,7 +44,7 @@ def summarize_news(news_list: list, country_name: str) -> str:
     prompt = f"""
     Summarize the following news articles and 
     only include important stuff! Start report by saying "Here is {country_name}'s report" and then begin summary. No more than three sentences. 
-    {news_list}
+    {news_list}. No chinese characters!
     """
     
     try:
