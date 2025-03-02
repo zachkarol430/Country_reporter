@@ -20,13 +20,14 @@ RUN apt-get update && apt-get install -y \
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt --verbose
 
+RUN printenv
 
 # Make port 8000 available to the world outside this container (if needed)
 EXPOSE 8000
 
 # Define environment variable
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 # Run the app when the container launches
 CMD ["python", "api.py"]
