@@ -1,41 +1,66 @@
-from langchain_ollama import OllamaLLM
-from langchain_core.prompts import ChatPromptTemplate
+import requests
+import json
+import os
 
-model = OllamaLLM(model="llama3.2:1b")
+open_router_api_key = os.getenv('my_router_key')
 
 def generate_fun_facts(country_name: str) -> str:
-    """Generate fun facts about a country"""
+    """Generate fun facts about a country using OpenRouter API"""
     prompt = f"""
     Generate two fun facts about {country_name}.
     Keep them brief and interesting.
-    DO NOT include any sensitive topics.
+    DO NOT include any sensitive topics. No chinese characters
     """
     
     try:
-        return model.invoke(
-            prompt,
-            config={
-                'timeout': 30,
-                'max_tokens': 200
-            }
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization":  f"Bearer {open_router_api_key}",
+                "Content-Type": "application/json",
+            },
+            data=json.dumps({
+                "model": "moonshotai/moonlight-16b-a3b-instruct:free",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+            })
         )
+        response_data = response.json()
+        return response_data.get('choices', [{}])[0].get('message', {}).get('content', "No response content.")
     except Exception as e:
         return "Unable to generate fun facts at this time."
-    
-def summarize_news(news_list: list, country_name) -> str:
-    """Summarize a list of news articles"""
+
+def summarize_news(news_list: list, country_name: str) -> str:
+    """Summarize a list of news articles using OpenRouter API"""
     prompt = f"""
     Summarize the following news articles and 
-    only include important stuff!   Start report by saying "Here is {country_name}'s report" and then begin summary. No more than three sentences. 
+    only include important stuff! Start report by saying "Here is {country_name}'s report" and then begin summary. No more than three sentences. 
     {news_list}
     """
+    
     try:
-        return model.invoke(
-            prompt,
-            config={
-                'timeout': 30,
-                'max_tokens': 200
-            }
+        response = requests.post(
+            url="https://openrouter.ai/api/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {open_router_api_key}",
+                "Content-Type": "application/json",
+            },
+            data=json.dumps({
+                "model": "moonshotai/moonlight-16b-a3b-instruct:free",
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+            })
         )
+        response_data = response.json()
+        return response_data.get('choices', [{}])[0].get('message', {}).get('content', "No response content.")
     except Exception as e:
         return "Unable to summarize the news at this time."
+    

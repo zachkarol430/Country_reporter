@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     libssl-dev \
     libffi-dev \
+    curl \
     && rm -rf /var/lib/apt/lists/*
+
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt --verbose
+
 
 # Make port 8000 available to the world outside this container (if needed)
 EXPOSE 8000
