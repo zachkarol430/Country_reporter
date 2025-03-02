@@ -171,5 +171,4 @@ cython_debug/
 .pypirc
 node_modules
 
-docker-compose.yml
 .dockerignore
