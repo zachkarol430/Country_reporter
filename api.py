@@ -22,7 +22,10 @@ app.mount("/flags", StaticFiles(directory=FLAGS_DIR), name="flags")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:3000",
+        "https://country-reporter-front-end.vercel.app"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
